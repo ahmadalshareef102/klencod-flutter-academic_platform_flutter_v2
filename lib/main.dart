@@ -37,7 +37,7 @@ class AcademicPlatformApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: blue, primary: blue),
         scaffoldBackgroundColor: pageBg,
         fontFamily: 'Cairo',
-        appBarTheme: const AppBarTheme(backgroundColor: Color(0xFFF8FAFE), surfaceTintColor: Colors.transparent, foregroundColor: navy, centerTitle: false, elevation: 0, scrolledUnderElevation: 0),
+        appBarTheme: const AppBarTheme(backgroundColor: pageBg, surfaceTintColor: Colors.transparent, foregroundColor: navy, centerTitle: false, elevation: 0, scrolledUnderElevation: 0),
         cardTheme: CardThemeData(
           color: Colors.white,
           elevation: 0,
@@ -160,7 +160,13 @@ Future<Map<String, Rec>> profileMap() async {
 String pname(Map<String, Rec> people, dynamic id) => (people[id]?['full_name'] as String?) ?? '—';
 
 String errText(Object e) {
-  if (e is PostgrestException) return e.message;
+  if (e is PostgrestException) {
+    final m = e.message;
+    if (m.contains('schema cache') || m.contains('does not exist')) {
+      return '$m\nنفّذ ملف supabase/grades_patch.sql في Supabase (SQL Editor) ثم أعد المحاولة.';
+    }
+    return m;
+  }
   if (e is AuthException) return e.message;
   return e.toString();
 }
@@ -491,10 +497,10 @@ class Watermark extends StatelessWidget {
   final Widget child;
   final double opacity;
   final double alignY;
-  const Watermark({super.key, required this.child, this.opacity = .10, this.alignY = .1});
+  const Watermark({super.key, required this.child, this.opacity = .07, this.alignY = .1});
   @override
   Widget build(BuildContext context) => DecoratedBox(
-        decoration: const BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0xFFF8FAFE), Color(0xFFEAF0F9)])),
+        decoration: const BoxDecoration(color: pageBg),
         child: Stack(children: [
           Positioned.fill(
             child: IgnorePointer(
@@ -502,7 +508,18 @@ class Watermark extends StatelessWidget {
                 alignment: Alignment(0, alignY),
                 child: FractionallySizedBox(
                   widthFactor: .9,
-                  child: Opacity(opacity: opacity, child: Image.asset('assets/images/university_logo.png', fit: BoxFit.contain)),
+                  child: Opacity(
+                    opacity: opacity,
+                    child: ColorFiltered(
+                      colorFilter: const ColorFilter.matrix(<double>[
+                        0.2126, 0.7152, 0.0722, 0, 0,
+                        0.2126, 0.7152, 0.0722, 0, 0,
+                        0.2126, 0.7152, 0.0722, 0, 0,
+                        0, 0, 0, 1, 0,
+                      ]),
+                      child: Image.asset('assets/images/university_logo.png', fit: BoxFit.contain),
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -715,7 +732,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (_restoring) return const Scaffold(body: Center(child: CircularProgressIndicator()));
     return Scaffold(
       body: Watermark(
-        opacity: .16,
+        opacity: .10,
         alignY: .2,
         child: SafeArea(
         child: SingleChildScrollView(
@@ -851,7 +868,7 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _tab,
         onDestinationSelected: (value) => setState(() => _tab = value),
-        backgroundColor: const Color(0xF2FFFFFF),
+        backgroundColor: Colors.white,
         indicatorColor: paleBlue,
         destinations: const [
           NavigationDestination(icon: Icon(Icons.grid_view_rounded), label: 'الرئيسية'),

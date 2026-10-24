@@ -167,3 +167,6 @@ begin
 end $$;
 revoke all on function public.set_results_published(uuid, boolean) from public, anon;
 grant execute on function public.set_results_published(uuid, boolean) to authenticated;
+
+-- تحديث ذاكرة واجهة Supabase حتى يتعرّف التطبيق على الجداول الجديدة فوراً
+notify pgrst, 'reload schema';
