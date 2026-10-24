@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'main.dart';
+import 'services.dart';
 
 // ───────────────────────── أدوات الدرجات ─────────────────────────
 
@@ -285,6 +287,58 @@ class _GradeSheetPageState extends State<GradeSheetPage> {
     }
   }
 
+  String _csv() {
+    final b = StringBuffer('الرقم الجامعي,الاسم,أعمال السنة,النصفي,النهائي,المجموع,التقدير\n');
+    for (final s in _students) {
+      final sid = s['id'] as String;
+      final t = _c[sid]!;
+      final tot = _studentTotal(sid);
+      final pct = _max.total == 0 ? 0.0 : tot * 100 / _max.total;
+      b.writeln([s['student_number'] ?? '', '${s['full_name']}'.replaceAll(',', '،'), t[0].text, t[1].text, t[2].text, fmtNum(tot), gradeLabel(pct)].join(','));
+    }
+    return b.toString();
+  }
+
+  Future<void> _export() async {
+    await Clipboard.setData(ClipboardData(text: _csv()));
+    if (mounted) snack(context, 'تم نسخ الكشف. الصقه في Excel أو أي برنامج');
+  }
+
+  Future<void> _import() async {
+    final r = await formDialog(
+      context,
+      'لصق درجات من Excel',
+      const [FormSpec('data', 'الصق الأسطر هنا', kind: FK.multiline)],
+      okLabel: 'تطبيق',
+      intro: 'كل سطر: الرقم الجامعي ثم أعمال السنة ثم النصفي ثم النهائي، مفصولة بفاصلة أو Tab (كما تُنسخ من Excel). بعد التطبيق راجع الدرجات ثم اضغط «حفظ الدرجات».',
+    );
+    if (r == null || !mounted) return;
+    final byNum = <String, String>{
+      for (final s in _students)
+        if ('${s['student_number'] ?? ''}'.trim().isNotEmpty) latinDigits('${s['student_number']}'.trim()): s['id'] as String,
+    };
+    var matched = 0;
+    var missed = 0;
+    for (final line in r['data']!.split('\n')) {
+      final cells = line.split(RegExp(r'[,\t;،]')).map((e) => e.trim()).toList();
+      if (cells.length < 2) continue;
+      final sid = byNum[latinDigits(cells[0])];
+      if (sid == null) {
+        missed++;
+        continue;
+      }
+      for (var i = 0; i < 3; i++) {
+        if (cells.length > i + 1) {
+          final v = parseNum(cells[i + 1]);
+          _c[sid]![i].text = v == null ? '' : fmtNum(v);
+        }
+      }
+      matched++;
+    }
+    setState(() {});
+    snack(context, 'تم تطبيق $matched سطر، وتعذرت مطابقة $missed');
+  }
+
   double _studentTotal(String sid) {
     double sum = 0;
     for (final t in _c[sid]!) {
@@ -387,6 +441,12 @@ class _GradeSheetPageState extends State<GradeSheetPage> {
     }
     return PageScaffold(
       title: '${widget.course.code} · ${widget.course.name}',
+      actions: (_loading || _error != null || _students.isEmpty)
+          ? null
+          : [
+              IconButton(tooltip: 'نسخ الكشف (Excel)', onPressed: _export, icon: const Icon(Icons.copy_all_rounded)),
+              if (!_locked) IconButton(tooltip: 'لصق درجات من Excel', onPressed: _import, icon: const Icon(Icons.content_paste_go_rounded)),
+            ],
       fab: (_loading || _error != null || _locked || _students.isEmpty)
           ? null
           : FloatingActionButton.extended(
@@ -466,6 +526,7 @@ class MyResultsPage extends StatelessWidget {
                       Text('المجموع: ${fmtNum(total)} من ${fmtNum(mx.total)}  (${pct.round()}%)', style: const TextStyle(fontWeight: FontWeight.w700, color: navy, fontSize: 13)),
                       const SizedBox(height: 8),
                       ClipRRect(borderRadius: BorderRadius.circular(8), child: LinearProgressIndicator(value: (pct / 100).clamp(0.0, 1.0), minHeight: 8, color: gradeColor(pct), backgroundColor: const Color(0xFFE5ECF5))),
+                      AppealButton(user: user, courseId: '${g['course_id']}'),
                     ]),
                   ),
                 ),

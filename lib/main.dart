@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'broadcast.dart';
 import 'grades.dart';
+import 'services.dart';
 
 const supabaseUrl = 'https://lpitsicjlqimkpgjiggd.supabase.co';
 const supabaseAnonKey = 'sb_publishable_30Y5FaUnInQRoGsDOflRvQ_pKqAg8jS';
@@ -812,6 +814,20 @@ Widget featurePage(AppUser u, String f) {
       return GradeCoursesPage(user: u);
     case 'التحكم بالنتائج':
       return ResultsControlPage(user: u);
+    case 'مركز التعميمات':
+      return BroadcastCenterPage(user: u);
+    case 'الجدول والتقويم':
+      return TimetablePage(user: u);
+    case 'نسبة حضوري':
+    case 'المعرّضون للحرمان':
+      return AttendanceRiskPage(user: u);
+    case 'اعتراضات الدرجات':
+      return AppealsInboxPage(user: u);
+    case 'تقييم المقررات':
+      return CourseEvaluationPage(user: u);
+    case 'تقييمات مقرراتي':
+    case 'نتائج التقييم':
+      return EvaluationResultsPage(user: u);
     case 'تسجيل الحضور':
       return AttendanceTakePage(user: u);
     case 'تقدم المقرر':
@@ -997,10 +1013,10 @@ Future<DashData> loadDash(AppUser u) async {
 }
 
 List<(IconData, String)> dashActions(UserRole role) => switch (role) {
-      UserRole.student => const [(Icons.library_books_outlined, 'ملفات المحاضرات'), (Icons.assignment_outlined, 'الواجبات والتكليفات'), (Icons.fact_check_outlined, 'الحضور والغياب'), (Icons.grade_outlined, 'درجاتي'), (Icons.workspace_premium_outlined, 'نتائج المقررات'), (Icons.support_agent_rounded, 'الشكاوى والمقترحات'), (Icons.campaign_outlined, 'الإعلانات')],
-      UserRole.teacher => const [(Icons.library_books_outlined, 'إدارة المحاضرات'), (Icons.assignment_outlined, 'إدارة التكليفات'), (Icons.fact_check_outlined, 'تسجيل الحضور'), (Icons.edit_note_rounded, 'رصد الدرجات'), (Icons.trending_up_rounded, 'تقدم المقرر'), (Icons.groups_2_outlined, 'متابعة الطلاب'), (Icons.campaign_outlined, 'الإعلانات')],
-      UserRole.head => const [(Icons.menu_book_rounded, 'متابعة المقررات'), (Icons.groups_2_outlined, 'متابعة المدرسين'), (Icons.assessment_outlined, 'تقارير القسم'), (Icons.fact_check_outlined, 'متابعة الحضور'), (Icons.rule_folder_outlined, 'التحكم بالنتائج'), (Icons.support_agent_rounded, 'الشكاوى والمقترحات'), (Icons.campaign_outlined, 'الإعلانات')],
-      UserRole.admin => const [(Icons.manage_accounts_outlined, 'إدارة المستخدمين'), (Icons.admin_panel_settings_outlined, 'الصلاحيات'), (Icons.assessment_outlined, 'التقارير العامة'), (Icons.menu_book_rounded, 'إدارة المقررات'), (Icons.rule_folder_outlined, 'التحكم بالنتائج'), (Icons.support_agent_rounded, 'الشكاوى والمقترحات'), (Icons.insights_rounded, 'الإحصائيات')],
+      UserRole.student => const [(Icons.library_books_outlined, 'ملفات المحاضرات'), (Icons.assignment_outlined, 'الواجبات والتكليفات'), (Icons.fact_check_outlined, 'الحضور والغياب'), (Icons.grade_outlined, 'درجاتي'), (Icons.workspace_premium_outlined, 'نتائج المقررات'), (Icons.calendar_month_outlined, 'الجدول والتقويم'), (Icons.pie_chart_outline_rounded, 'نسبة حضوري'), (Icons.rate_review_outlined, 'تقييم المقررات'), (Icons.support_agent_rounded, 'الشكاوى والمقترحات'), (Icons.campaign_outlined, 'الإعلانات')],
+      UserRole.teacher => const [(Icons.library_books_outlined, 'إدارة المحاضرات'), (Icons.assignment_outlined, 'إدارة التكليفات'), (Icons.fact_check_outlined, 'تسجيل الحضور'), (Icons.edit_note_rounded, 'رصد الدرجات'), (Icons.calendar_month_outlined, 'الجدول والتقويم'), (Icons.warning_amber_rounded, 'المعرّضون للحرمان'), (Icons.gavel_rounded, 'اعتراضات الدرجات'), (Icons.star_outline_rounded, 'تقييمات مقرراتي'), (Icons.trending_up_rounded, 'تقدم المقرر'), (Icons.groups_2_outlined, 'متابعة الطلاب'), (Icons.campaign_outlined, 'الإعلانات')],
+      UserRole.head => const [(Icons.menu_book_rounded, 'متابعة المقررات'), (Icons.groups_2_outlined, 'متابعة المدرسين'), (Icons.assessment_outlined, 'تقارير القسم'), (Icons.fact_check_outlined, 'متابعة الحضور'), (Icons.rule_folder_outlined, 'التحكم بالنتائج'), (Icons.send_rounded, 'مركز التعميمات'), (Icons.calendar_month_outlined, 'الجدول والتقويم'), (Icons.warning_amber_rounded, 'المعرّضون للحرمان'), (Icons.gavel_rounded, 'اعتراضات الدرجات'), (Icons.star_outline_rounded, 'نتائج التقييم'), (Icons.support_agent_rounded, 'الشكاوى والمقترحات'), (Icons.campaign_outlined, 'الإعلانات')],
+      UserRole.admin => const [(Icons.manage_accounts_outlined, 'إدارة المستخدمين'), (Icons.admin_panel_settings_outlined, 'الصلاحيات'), (Icons.assessment_outlined, 'التقارير العامة'), (Icons.menu_book_rounded, 'إدارة المقررات'), (Icons.rule_folder_outlined, 'التحكم بالنتائج'), (Icons.send_rounded, 'مركز التعميمات'), (Icons.calendar_month_outlined, 'الجدول والتقويم'), (Icons.warning_amber_rounded, 'المعرّضون للحرمان'), (Icons.gavel_rounded, 'اعتراضات الدرجات'), (Icons.star_outline_rounded, 'نتائج التقييم'), (Icons.support_agent_rounded, 'الشكاوى والمقترحات'), (Icons.insights_rounded, 'الإحصائيات')],
     };
 
 class DashboardPage extends StatelessWidget {
@@ -1197,9 +1213,10 @@ class NotificationsPage extends StatelessWidget {
       personal = <Rec>[];
     }
     final ann = await loadAnnouncements(user);
+    final delivered = personal.map((n) => n['ref_id']).where((x) => x != null).toSet();
     final all = <Rec>[
       for (final n in personal) {...n, '_type': 'personal', '_time': n['created_at']},
-      for (final a in ann) {...a, '_type': 'announcement', '_time': a['published_at']},
+      for (final a in ann) if (!delivered.contains(a['id'])) {...a, '_type': 'announcement', '_time': a['published_at']},
     ];
     all.sort((a, b) => '${b['_time']}'.compareTo('${a['_time']}'));
     if (personal.any((n) => n['is_read'] == false)) {
@@ -1227,7 +1244,7 @@ class NotificationsPage extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 12),
               child: a['_type'] == 'personal'
                   ? NoticeTile(
-                      icon: a['kind'] == 'result' ? Icons.workspace_premium_rounded : Icons.notifications_active_rounded,
+                      icon: a['kind'] == 'result' ? Icons.workspace_premium_rounded : (a['kind'] == 'announcement' ? Icons.campaign_rounded : Icons.notifications_active_rounded),
                       title: '${a['title']}${a['is_read'] == false ? '  ●' : ''}',
                       body: '${a['body']}',
                       time: fmtDateTime(a['created_at']),
@@ -1267,6 +1284,8 @@ class ProfilePage extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         FeatureRow(icon: Icons.support_agent_rounded, title: 'المساعدة والدعم', subtitle: 'الشكاوى والمقترحات', onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => ComplaintsPage(user: user)))),
+        const SizedBox(height: 10),
+        FeatureRow(icon: Icons.lock_reset_rounded, title: 'تغيير كلمة المرور', subtitle: 'حدّث كلمة مرور حسابك', onTap: () => changePasswordFlow(context)),
         const SizedBox(height: 22),
         OutlinedButton.icon(
           onPressed: onLogout,
@@ -1749,18 +1768,7 @@ class _AnnouncementsPageState extends State<AnnouncementsPage> {
   int _v = 0;
 
   Future<void> _add() async {
-    final courses = widget.user.role.isStaff ? await loadCourses(widget.user) : <CourseInfo>[];
-    if (!mounted) return;
-    final r = await formDialog(context, 'إعلان جديد', [
-      const FormSpec('title', 'العنوان'),
-      const FormSpec('body', 'نص الإعلان', kind: FK.multiline),
-      const FormSpec('aud', 'موجّه إلى', kind: FK.dropdown, options: audienceAr),
-      FormSpec('course', 'مقرر محدد', kind: FK.dropdown, required: false, options: courseOptions(courses, allowNone: true), initial: ''),
-    ], okLabel: 'نشر');
-    if (r == null || !mounted) return;
-    final ok = await guarded(context, () async {
-      await db.from('announcements').insert({'title': r['title']!, 'body': r['body']!, 'audience': r['aud']!, 'course_id': nz(r['course']), 'created_by': widget.user.id});
-    }, ok: 'تم نشر الإعلان');
+    final ok = await sendBroadcast(context, widget.user);
     if (ok && mounted) setState(() => _v++);
   }
 
@@ -1781,17 +1789,15 @@ class _AnnouncementsPageState extends State<AnnouncementsPage> {
       fab: u.role.isStaff ? FloatingActionButton.extended(onPressed: _add, icon: const Icon(Icons.campaign_outlined), label: const Text('إعلان جديد')) : null,
       body: FutureBody<List<Rec>>(
         key: ValueKey(_v),
-        load: () => loadAnnouncements(u),
+        load: () async => sortAnnouncements(await loadAnnouncements(u)),
         builder: (context, list, reload) => refreshList(reload, [
           if (list.isEmpty) const Card(child: EmptyBox('لا توجد إعلانات حتى الآن')),
           for (final a in list)
             Padding(
               padding: const EdgeInsets.only(bottom: 12),
-              child: NoticeTile(
-                icon: Icons.campaign_rounded,
-                title: '${a['title']}',
-                body: '${a['body']}',
-                time: '${fmtDateTime(a['published_at'])} · ${audienceAr[a['audience']] ?? ''}${u.role.isStaff && (u.role.isManager || a['created_by'] == u.id) ? ' · اضغط مطولاً للحذف' : ''}',
+              child: BroadcastCard(
+                a: a,
+                footer: '${fmtDateTime(a['published_at'])} · ${audienceAr[a['audience']] ?? ''}${u.role.isStaff && (u.role.isManager || a['created_by'] == u.id) ? ' · اضغط مطولاً للحذف' : ''}',
                 onLongPress: u.role.isStaff && (u.role.isManager || a['created_by'] == u.id) ? () => _delete(a) : null,
               ),
             ),
